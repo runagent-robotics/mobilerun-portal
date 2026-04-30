@@ -2,6 +2,8 @@ package com.mobilerun.portal.input
 
 import com.mobilerun.portal.R
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.inputmethodservice.InputMethodService
@@ -129,6 +131,38 @@ class MobilerunKeyboardIME : InputMethodService() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error sending direct key event", e)
+            false
+        }
+    }
+
+    /**
+     * Read the primary clipboard text using the IME context.
+     * On Android 10+, only an active IME (or foreground app) can read the clipboard.
+     * Returns null if clipboard is empty or inaccessible.
+     */
+    fun getClipboardText(): String? {
+        return try {
+            val cm = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+            cm?.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to read clipboard via IME", e)
+            null
+        }
+    }
+
+    /**
+     * Write text to the system clipboard using the IME context.
+     * Returns true on success.
+     */
+    fun setClipboardText(text: String): Boolean {
+        return try {
+            val cm = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                ?: return false
+            cm.setPrimaryClip(ClipData.newPlainText("text", text))
+            Log.d(TAG, "Clipboard set via IME")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to set clipboard via IME", e)
             false
         }
     }

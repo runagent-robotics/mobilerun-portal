@@ -118,6 +118,24 @@ class ActionDispatcher(
                 apiHandler.keyboardInput(text, clear)
             }
 
+            "clipboard/get" -> {
+                apiHandler.getClipboard()
+            }
+
+            "clipboard/set" -> {
+                val textBase64 = params.optString("text_base64", "")
+                val resolved = if (textBase64.isNotEmpty()) {
+                    try {
+                        String(android.util.Base64.decode(textBase64, android.util.Base64.DEFAULT))
+                    } catch (e: Exception) {
+                        return ApiResponse.Error("Invalid base64 for text_base64: ${e.message}")
+                    }
+                } else {
+                    params.optString("text", "")
+                }
+                apiHandler.setClipboard(resolved)
+            }
+
             "keyboard/clear", "clear" -> {
                 apiHandler.keyboardClear()
             }

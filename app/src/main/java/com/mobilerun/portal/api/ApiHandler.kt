@@ -2048,6 +2048,32 @@ class ApiHandler(
     fun getScreenKeepAwakeStatus(): ApiResponse =
         ApiResponse.RawObject(KeepAliveController.getStatusJson(context))
 
+    fun getClipboard(): ApiResponse {
+        val ime = getKeyboardIME()
+            ?: return ApiResponse.Error("clipboard/get requires MobilerunKeyboardIME to be active")
+        val text = ime.getClipboardText()
+            ?: return ApiResponse.Success("")
+        return ApiResponse.Success(text)
+    }
+
+    fun setClipboard(text: String): ApiResponse {
+        // Prefer IME context (more reliable on Android 10+)
+        val ime = getKeyboardIME()
+        if (ime != null && ime.setClipboardText(text)) {
+            return ApiResponse.Success("clipboard set via IME")
+        }
+        // Fallback: use app context directly
+        return try {
+            val cm = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                as? android.content.ClipboardManager
+                ?: return ApiResponse.Error("ClipboardManager unavailable")
+            cm.setPrimaryClip(android.content.ClipData.newPlainText("text", text))
+            ApiResponse.Success("clipboard set via app context")
+        } catch (e: Exception) {
+            ApiResponse.Error("Failed to set clipboard: ${e.message}")
+        }
+    }
+
     private fun fileOperationsUnavailableResponse(): ApiResponse? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) return null
         return ApiResponse.Error(
