@@ -222,6 +222,8 @@ class MobilerunContentProvider : ContentProvider() {
         private const val TOGGLE_SCREEN_KEEP_AWAKE = 29
         private const val SCREEN_KEEP_AWAKE_STATUS = 30
         private const val SET_NO_A11Y_MODE = 31
+        private const val GET_CLIPBOARD = 32
+        private const val SET_CLIPBOARD = 33
 
         private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
             addURI(AUTHORITY, "a11y_tree", A11Y_TREE)
@@ -255,6 +257,8 @@ class MobilerunContentProvider : ContentProvider() {
             addURI(AUTHORITY, "toggle_screen_keep_awake", TOGGLE_SCREEN_KEEP_AWAKE)
             addURI(AUTHORITY, "screen_keep_awake_status", SCREEN_KEEP_AWAKE_STATUS)
             addURI(AUTHORITY, "set_no_a11y_mode", SET_NO_A11Y_MODE)
+            addURI(AUTHORITY, "getclipboard", GET_CLIPBOARD)
+            addURI(AUTHORITY, "setclipboard", SET_CLIPBOARD)
         }
     }
 
@@ -368,6 +372,7 @@ class MobilerunContentProvider : ContentProvider() {
                             )
 
                             PACKAGES -> handler.getPackages()
+                            GET_CLIPBOARD -> handler.getClipboard()
                             else -> ApiResponse.Error("Unknown endpoint: ${uri.path}")
                         }
                     }
@@ -552,6 +557,12 @@ class MobilerunContentProvider : ContentProvider() {
                     context!!.sendBroadcast(intent)
 
                     ApiResponse.Success("Production mode set to $enabled")
+                }
+
+                SET_CLIPBOARD -> {
+                    val text = getStringValue(values, "text")
+                        ?: return "content://$AUTHORITY/result?status=error&message=${Uri.encode("Missing required field: text")}".toUri()
+                    handler.setClipboard(text)
                 }
 
                 else -> ApiResponse.Error("Unsupported insert endpoint")
