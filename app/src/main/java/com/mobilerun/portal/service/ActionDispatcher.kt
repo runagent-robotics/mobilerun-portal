@@ -130,8 +130,10 @@ class ActionDispatcher(
                     } catch (e: Exception) {
                         return ApiResponse.Error("Invalid base64 for text_base64: ${e.message}")
                     }
-                } else {
+                } else if (params.has("text")) {
                     params.optString("text", "")
+                } else {
+                    return ApiResponse.Error("Missing required param: 'text' or 'text_base64'")
                 }
                 apiHandler.setClipboard(resolved)
             }
