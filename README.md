@@ -208,6 +208,15 @@ adb shell content insert --uri content://com.mobilerun.portal/configure_reverse_
 adb shell content insert --uri content://com.mobilerun.portal/toggle_production_mode --bind enabled:b:true
 ```
 
+# Get clipboard
+adb shell content query --uri content://com.mobilerun.portal/getclipboard
+
+# Set clipboard (plain text)
+adb shell content insert --uri content://com.mobilerun.portal/setclipboard --bind text:s:"Hello World"
+
+# Set clipboard (base64)
+adb shell content insert --uri content://com.mobilerun.portal/setclipboard --bind text_base64:s:"SGVsbG8gV29ybGQ="
+
 #### Common Key Codes
 
 | Key | Code | Key | Code |
