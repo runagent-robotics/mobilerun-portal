@@ -276,6 +276,27 @@ class ConfigManager private constructor(private val context: Context) {
             }
         }
 
+    /**
+     * Returns the hardware serial number of the device, or an empty string if it cannot be read.
+     * On API 26+ this requires READ_PHONE_STATE; if the permission is absent the call is caught
+     * silently and an empty string is returned so the header is simply omitted.
+     */
+    val deviceSerialNumber: String
+        get() {
+            return try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val serial = Build.getSerial()
+                    if (serial == Build.UNKNOWN) "" else serial
+                } else {
+                    @Suppress("DEPRECATION", "HardwareIds")
+                    val serial = Build.SERIAL
+                    if (serial == Build.UNKNOWN) "" else serial
+                }
+            } catch (_: SecurityException) {
+                ""
+            }
+        }
+
     val deviceCountryCode: String
         get() {
             // Try to get country from SIM card first (most accurate for physical location)
