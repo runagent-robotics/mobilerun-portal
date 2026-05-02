@@ -413,9 +413,10 @@ class ReverseConnectionService : Service() {
                 manager.notifyStreamStoppedAsync("ws_disconnected")
             }
             manager.requestGracefulStop("ws_disconnected")
-        } else {
-            ScreenCaptureService.requestStop("ws_disconnected")
         }
+        // Always stop screen capture immediately on terminal WS disconnect;
+        // the idle-stop scheduled by requestGracefulStop is too long (10 min).
+        ScreenCaptureService.requestStop("ws_disconnected")
     }
 
     /**
