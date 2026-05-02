@@ -687,6 +687,18 @@
                                     android:textColor="@color/text_gray"
                                     android:textSize="11sp" />
 
+                                <TextView
+                                    android:id="@+id/text_device_serial"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="1dp"
+                                    android:ellipsize="end"
+                                    android:fontFamily="monospace"
+                                    android:maxLines="1"
+                                    android:visibility="gone"
+                                    android:textColor="@color/text_gray"
+                                    android:textSize="11sp" />
+
                             </LinearLayout>
 
                             <!-- Stacked action buttons -->
