@@ -40,7 +40,7 @@ class WebRtcManager private constructor(private val context: Context) {
         private const val H264_CODEC_NAME = "H264/90000"
         private const val STATS_INTERVAL_MS = 5000L
         private const val IDLE_TIMEOUT_MS = 10 * 60 * 1000L
-        private const val PEER_DISCONNECT_IDLE_TIMEOUT_MS = 30_000L
+        private const val PEER_DISCONNECT_IDLE_TIMEOUT_MS = 2 * 60 * 1000L
         private const val SCREENSHOT_CAPTURE_IDLE_TIMEOUT_MS = 60_000L
         private const val KEEP_ALIVE_TIMEOUT_MS = 30_000L
         private const val KEYFRAME_REQUEST_MIN_INTERVAL_MS = 250L
