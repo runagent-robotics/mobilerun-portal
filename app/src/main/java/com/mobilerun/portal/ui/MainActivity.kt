@@ -1439,8 +1439,15 @@ class MainActivity : AppCompatActivity(), ConfigManager.ConfigChangeListener {
             when (state) {
                 ConnectionState.CONNECTED -> {
                     binding.layoutConnected.visibility = View.VISIBLE
-                    binding.textDeviceId.text =
-                        "Device ID: ${ConfigManager.getInstance(this).deviceID}"
+                    val config = ConfigManager.getInstance(this)
+                    binding.textDeviceId.text = "Device ID: ${config.deviceID}"
+                    val serial = config.deviceSerialNumber
+                    if (serial.isNotBlank()) {
+                        binding.textDeviceSerial.text = "Serial: $serial"
+                        binding.textDeviceSerial.visibility = View.VISIBLE
+                    } else {
+                        binding.textDeviceSerial.visibility = View.GONE
+                    }
                 }
 
                 ConnectionState.CONNECTING, ConnectionState.RECONNECTING -> {

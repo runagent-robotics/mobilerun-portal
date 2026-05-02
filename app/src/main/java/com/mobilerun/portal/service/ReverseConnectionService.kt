@@ -217,6 +217,11 @@ class ReverseConnectionService : Service() {
         headers["X-Device-Name"] = configManager.deviceName
         headers["X-Device-Country"] = configManager.deviceCountryCode
 
+        val serial = configManager.deviceSerialNumber
+        if (serial.isNotBlank()) {
+            headers["X-Device-Serial"] = serial
+        }
+
         val serviceKey = configManager.reverseConnectionServiceKey
         if (serviceKey.isNotBlank()) {
             headers["X-Remote-Device-Key"] = serviceKey
