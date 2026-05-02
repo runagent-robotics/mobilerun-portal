@@ -225,6 +225,8 @@ class MobilerunContentProvider : ContentProvider() {
         private const val GET_CLIPBOARD = 32
         private const val SET_CLIPBOARD = 33
         private const val GET_DEVICE_ID = 34
+        private const val SET_DEVICE_SERIAL = 35
+        private const val GET_DEVICE_SERIAL = 36
 
         private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
             addURI(AUTHORITY, "a11y_tree", A11Y_TREE)
@@ -261,6 +263,8 @@ class MobilerunContentProvider : ContentProvider() {
             addURI(AUTHORITY, "getclipboard", GET_CLIPBOARD)
             addURI(AUTHORITY, "setclipboard", SET_CLIPBOARD)
             addURI(AUTHORITY, "get_device_id", GET_DEVICE_ID)
+            addURI(AUTHORITY, "set_device_serial", SET_DEVICE_SERIAL)
+            addURI(AUTHORITY, "get_device_serial", GET_DEVICE_SERIAL)
         }
     }
 
@@ -341,6 +345,7 @@ class MobilerunContentProvider : ContentProvider() {
                 VERSION -> ApiResponse.Success(getAppVersion())
                 AUTH_TOKEN -> ApiResponse.Text(configManager.authToken)
                 GET_DEVICE_ID -> ApiResponse.Text(configManager.deviceID)
+                GET_DEVICE_SERIAL -> ApiResponse.Text(configManager.deviceSerialNumberOverride)
                 SCREEN_KEEP_AWAKE_STATUS -> ApiResponse.RawObject(
                     KeepAliveController.getStatusJson(context ?: throw IllegalStateException("Provider context unavailable")),
                 )
@@ -475,6 +480,14 @@ class MobilerunContentProvider : ContentProvider() {
                 enabled,
             )
             return responseToResultUri(response)
+        }
+
+        if (match == SET_DEVICE_SERIAL) {
+            val serial = getStringValue(values, "serial")
+                ?: return "content://$AUTHORITY/result?status=error&message=${Uri.encode("Missing required field: serial")}".toUri()
+            configManager.deviceSerialNumberOverride = serial
+            val display = if (serial.isBlank()) "cleared" else serial
+            return responseToResultUri(ApiResponse.Success("device_serial=$display"))
         }
 
         val handler = getHandler()

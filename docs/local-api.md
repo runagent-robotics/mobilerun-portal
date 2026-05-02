@@ -177,6 +177,7 @@ adb shell content query --uri content://com.mobilerun.portal/state_full?filter=f
 adb shell content query --uri content://com.mobilerun.portal/packages
 adb shell content query --uri content://com.mobilerun.portal/auth_token
 adb shell content query --uri content://com.mobilerun.portal/screen_keep_awake_status
+adb shell content query --uri content://com.mobilerun.portal/get_device_serial
 ```
 
 ### Insert
@@ -198,4 +199,10 @@ adb shell content insert --uri content://com.mobilerun.portal/configure_reverse_
 adb shell content insert --uri content://com.mobilerun.portal/configure_reverse_connection --bind service_key_base64:s:"WU9VUl9LRVk="
 
 adb shell content insert --uri content://com.mobilerun.portal/toggle_production_mode --bind enabled:b:true
+
+# Set device serial override (use serial_base64 for serials with special characters)
+adb shell content insert --uri content://com.mobilerun.portal/set_device_serial --bind serial:s:"YOUR_SERIAL"
+adb shell content insert --uri content://com.mobilerun.portal/set_device_serial --bind serial_base64:s:"WU9VUl9TRVJJQUw="
+# Clear the override (falls back to hardware serial)
+adb shell content insert --uri content://com.mobilerun.portal/set_device_serial --bind serial:s:""
 ```
