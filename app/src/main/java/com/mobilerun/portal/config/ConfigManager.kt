@@ -85,6 +85,7 @@ class ConfigManager private constructor(private val context: Context) {
         private const val PREFIX_EVENT_ENABLED = "event_enabled_"
         private const val KEY_AUTH_TOKEN = "auth_token"
         private const val KEY_DEVICE_ID = "device_id"
+        private const val KEY_DEVICE_SERIAL_NUMBER = "device_serial_number"
         private const val KEY_BROWSER_AUTH_PENDING_UNTIL_MS = "browser_auth_pending_until_ms"
         private const val DEVICE_ID_PLACEHOLDER = "{deviceId}"
 
@@ -277,24 +278,79 @@ class ConfigManager private constructor(private val context: Context) {
         }
 
     /**
-     * Returns the hardware serial number of the device, or an empty string if it cannot be read.
-     * On API 26+ this requires READ_PHONE_STATE; if the permission is absent the call is caught
-     * silently and an empty string is returned so the header is simply omitted.
+     * User-overridden device serial number, saved to SharedPreferences.
+     * If set (non-blank), this value takes priority over auto-detection.
+     */
+    var deviceSerialNumberOverride: String
+        get() = sharedPrefs.getString(KEY_DEVICE_SERIAL_NUMBER, "") ?: ""
+        set(value) {
+            sharedPrefs.edit {
+                if (value.isBlank()) {
+                    remove(KEY_DEVICE_SERIAL_NUMBER)
+                } else {
+                    putString(KEY_DEVICE_SERIAL_NUMBER, value.trim())
+                }
+            }
+        }
+
+    /**
+     * Returns the device serial number to use in the X-Device-Serial header.
+     *
+     * Priority:
+     * 1. User override (deviceSerialNumberOverride) – manually entered in Settings.
+     * 2. Build.getSerial() / Build.SERIAL – requires READ_PHONE_STATE on API 26+.
+     * 3. ANDROID_ID (Settings.Secure) – available without special permissions.
+     * 4. Build fingerprint hash – last-resort stable identifier.
+     *
+     * If all strategies fail, returns an empty string so the header is simply omitted.
      */
     val deviceSerialNumber: String
         get() {
-            return try {
+            // Priority 1: User override
+            val override = deviceSerialNumberOverride
+            if (override.isNotBlank()) return override
+
+            // Priority 2: Build.getSerial() / Build.SERIAL
+            val hardwareSerial = try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     val serial = Build.getSerial()
-                    if (serial == Build.UNKNOWN) "" else serial
+                    if (serial != Build.UNKNOWN) serial else null
                 } else {
                     @Suppress("DEPRECATION", "HardwareIds")
                     val serial = Build.SERIAL
-                    if (serial == Build.UNKNOWN) "" else serial
+                    if (serial != Build.UNKNOWN) serial else null
                 }
             } catch (_: SecurityException) {
-                ""
+                null
             }
+            if (!hardwareSerial.isNullOrBlank()) return hardwareSerial
+
+            // Priority 3: Use ANDROID_ID (Settings.Secure)
+            try {
+                val androidId = android.provider.Settings.Secure.getString(
+                    context.contentResolver,
+                    android.provider.Settings.Secure.ANDROID_ID,
+                )
+                if (!androidId.isNullOrBlank() && androidId != "9774d56d682e549c") {
+                    return androidId
+                }
+            } catch (_: Exception) {
+                // Ignore
+            }
+
+            // Priority 4: Build fingerprint hash – last resort stable identifier
+            try {
+                val fingerprint = Build.FINGERPRINT
+                if (!fingerprint.isNullOrBlank()) {
+                    return java.util.UUID.nameUUIDFromBytes(fingerprint.toByteArray())
+                        .toString()
+                        .take(16)
+                }
+            } catch (_: Exception) {
+                // Ignore
+            }
+
+            return ""
         }
 
     val deviceCountryCode: String

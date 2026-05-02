@@ -272,4 +272,8 @@
     <string name="credits_refreshing">Refreshing credits…</string>
     <string name="credits_sign_in_required">Sign in with Mobilerun or add a valid API key to view credits.</string>
     <string name="credits_unsupported_host">Credits balance is only available for official Mobilerun cloud connections.</string>
+
+    <!-- Device Serial Number -->
+    <string name="device_serial_number_hint">Device Serial Number</string>
+    <string name="device_serial_number_helper">Manually enter the serial number if auto-detection fails</string>
 </resources>

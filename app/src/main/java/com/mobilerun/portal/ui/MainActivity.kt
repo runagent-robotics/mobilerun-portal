@@ -1348,6 +1348,7 @@ class MainActivity : AppCompatActivity(), ConfigManager.ConfigChangeListener {
         val dialogView = layoutInflater.inflate(R.layout.dialog_custom_connection, null)
         val inputUrl = dialogView.findViewById<TextInputEditText>(R.id.input_custom_url)
         val inputToken = dialogView.findViewById<TextInputEditText>(R.id.input_custom_token)
+        val inputSerial = dialogView.findViewById<TextInputEditText>(R.id.input_custom_serial)
         val btnCancel =
             dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_cancel)
         val btnConnect =
@@ -1367,6 +1368,12 @@ class MainActivity : AppCompatActivity(), ConfigManager.ConfigChangeListener {
             inputToken.setText(existingToken)
         }
         inputToken.addWhitespaceStrippingWatcher()
+
+        // Pre-fill device serial number
+        val existingSerial = configManager.deviceSerialNumberOverride
+        if (existingSerial.isNotBlank()) {
+            inputSerial.setText(existingSerial)
+        }
 
         val dialog = AlertDialog.Builder(this, R.style.Theme_MobilerunPortal_Dialog)
             .setView(dialogView)
@@ -1400,6 +1407,10 @@ class MainActivity : AppCompatActivity(), ConfigManager.ConfigChangeListener {
                     .show()
                 return@setOnClickListener
             }
+
+            // Save device serial number
+            val serial = inputSerial.text?.toString()?.trim() ?: ""
+            configManager.deviceSerialNumberOverride = serial
 
             Log.d(TAG, "showCustomConnectionDialog: Saving config...")
             // Save configuration

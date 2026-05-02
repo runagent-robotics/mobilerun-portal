@@ -98,6 +98,7 @@ class SettingsActivity : AppCompatActivity(), ConfigManager.ConfigChangeListener
         super.onStop()
         configManager.removeListener(this)
         persistReverseConnectionInputs()
+        persistDeviceSerialInput()
     }
 
     private fun setupDevMode() {
@@ -232,6 +233,21 @@ class SettingsActivity : AppCompatActivity(), ConfigManager.ConfigChangeListener
         binding.switchKeepScreenAwake.setOnCheckedChangeListener { _, isChecked ->
             KeepAliveController.setEnabled(this, isChecked)
         }
+
+        // Device Serial Number
+        binding.inputDeviceSerial.setText(configManager.deviceSerialNumberOverride)
+        binding.inputDeviceSerial.addWhitespaceStrippingWatcher()
+
+        binding.inputDeviceSerial.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                configManager.deviceSerialNumberOverride = v.text?.toString()?.trim() ?: ""
+                binding.inputDeviceSerial.clearFocus()
+                restartServiceIfEnabled()
+                true
+            } else {
+                false
+            }
+        }
     }
 
     private fun setupPermissions() {
@@ -365,6 +381,10 @@ class SettingsActivity : AppCompatActivity(), ConfigManager.ConfigChangeListener
         configManager.reverseConnectionUrl = binding.inputReverseUrl.text?.toString()?.trim() ?: ""
         configManager.reverseConnectionToken =
             sanitizeToken(binding.inputReverseToken.text?.toString())
+    }
+
+    private fun persistDeviceSerialInput() {
+        configManager.deviceSerialNumberOverride = binding.inputDeviceSerial.text?.toString()?.trim() ?: ""
     }
 
     private fun currentCreditsToken(): String {

@@ -276,6 +276,29 @@
                     android:textSize="16sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Device Serial Number -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="24dp"
+                android:paddingBottom="12dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxStrokeColor="@color/text_gray"
+                app:hintTextColor="@color/text_gray"
+                android:hint="@string/device_serial_number_hint"
+                app:helperText="@string/device_serial_number_helper"
+                app:helperTextTextColor="@color/text_gray">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/input_device_serial"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColor="@color/text_white"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- Screen Share Auto-Accept -->
             <LinearLayout
                 android:layout_width="match_parent"
