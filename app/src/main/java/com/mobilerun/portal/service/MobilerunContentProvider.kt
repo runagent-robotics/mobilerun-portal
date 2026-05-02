@@ -224,6 +224,7 @@ class MobilerunContentProvider : ContentProvider() {
         private const val SET_NO_A11Y_MODE = 31
         private const val GET_CLIPBOARD = 32
         private const val SET_CLIPBOARD = 33
+        private const val GET_DEVICE_ID = 34
 
         private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
             addURI(AUTHORITY, "a11y_tree", A11Y_TREE)
@@ -259,6 +260,7 @@ class MobilerunContentProvider : ContentProvider() {
             addURI(AUTHORITY, "set_no_a11y_mode", SET_NO_A11Y_MODE)
             addURI(AUTHORITY, "getclipboard", GET_CLIPBOARD)
             addURI(AUTHORITY, "setclipboard", SET_CLIPBOARD)
+            addURI(AUTHORITY, "get_device_id", GET_DEVICE_ID)
         }
     }
 
@@ -338,6 +340,7 @@ class MobilerunContentProvider : ContentProvider() {
             val response = when (match) {
                 VERSION -> ApiResponse.Success(getAppVersion())
                 AUTH_TOKEN -> ApiResponse.Text(configManager.authToken)
+                GET_DEVICE_ID -> ApiResponse.Text(configManager.deviceID)
                 SCREEN_KEEP_AWAKE_STATUS -> ApiResponse.RawObject(
                     KeepAliveController.getStatusJson(context ?: throw IllegalStateException("Provider context unavailable")),
                 )
